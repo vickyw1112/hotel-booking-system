@@ -2,5 +2,6 @@ package domain;
 
 public enum Status {
 	Current,
-	Completed
+	Completed,
+	suspending
 }

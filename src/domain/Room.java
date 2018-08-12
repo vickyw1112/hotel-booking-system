@@ -7,16 +7,25 @@ public class Room {
 	private String number;
 	private int capicity;
 	private LinkedList<Booking> bookings;
+	private String hotelName;
 	
 	/**
 	 * constructor
 	 * @param number
 	 * @param capacity
 	 */
-	public Room(String number, int capacity) {
+	public Room(String number, int capacity, String hotelName) {
 		this.number = number;
 		this.capicity = capacity;
+		this.hotelName = hotelName;
 		this.bookings = new LinkedList<Booking>();
+	}
+	
+	/**
+	 * @return the bookings
+	 */
+	public LinkedList<Booking> getBookings() {
+		return bookings;
 	}
 
 	/**
@@ -24,6 +33,13 @@ public class Room {
 	 */
 	public String getNumber() {
 		return number;
+	}
+	
+	/**
+	 * @return hotel name
+	 */
+	public String hotelName() {
+		return this.hotelName;
 	}
 
 	/**
@@ -69,9 +85,6 @@ public class Room {
 	 * @return
 	 */
 	private boolean isTimeAvailable(LocalDate date, int len) {
-		if(this.bookings.isEmpty())
-			return true;
-		
 		Booking prev = null;
 		for(Booking booking: this.bookings) {
 			// if booking list is empty return true

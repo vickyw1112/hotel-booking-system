@@ -43,9 +43,9 @@ public class Hotel {
 	 * @param capicity
 	 * @return
 	 */
-	public Room searchRoom(int capicity) {
+	public Room searchEmptyRoom(int capicity) {
 		for(Room room: this.rooms) {
-			if(room.getCapicity() == capicity)
+			if(room.getCapicity() == capicity && room.getBookings().isEmpty())
 				return room;
 		}
 		return null;
