@@ -7,7 +7,6 @@ public class Room {
 	private String number;
 	private int capicity;
 	private LinkedList<Booking> bookings;
-	private String hotelName;
 	
 	/**
 	 * constructor
@@ -17,7 +16,6 @@ public class Room {
 	public Room(String number, int capacity, String hotelName) {
 		this.number = number;
 		this.capicity = capacity;
-		this.hotelName = hotelName;
 		this.bookings = new LinkedList<Booking>();
 	}
 	
@@ -33,13 +31,6 @@ public class Room {
 	 */
 	public String getNumber() {
 		return number;
-	}
-	
-	/**
-	 * @return hotel name
-	 */
-	public String hotelName() {
-		return this.hotelName;
 	}
 
 	/**
@@ -79,6 +70,14 @@ public class Room {
 	}
 	
 	/**
+	 * is empty room 
+	 * @return
+	 */
+	public boolean noBookings() {
+		return bookings.isEmpty();
+	}
+	
+	/**
 	 * decide time is whether available
 	 * @param date
 	 * @param len
@@ -87,15 +86,14 @@ public class Room {
 	private boolean isTimeAvailable(LocalDate date, int len) {
 		Booking prev = null;
 		for(Booking booking: this.bookings) {
-			// if booking list is empty return true
 			if(prev == null)
 				continue;
 			// is prevBooking leave date <= date <= curBooking arrive date
 			// return true
-			if(booking.getArriveDate().isAfter(date.plusDays(len)) 
+			if(booking.getStatus() == Status.Current && booking.getArriveDate().isAfter(date.plusDays(len)) 
 						&& prev.getLeaveDate().isBefore(date))
 				return true;
-			else if(booking.getArriveDate().isEqual(date.plusDays(len)) 
+			else if(booking.getStatus() == Status.Current && booking.getArriveDate().isEqual(date.plusDays(len)) 
 						&& prev.getLeaveDate().isEqual(date))
 				return true;
 			prev = booking;

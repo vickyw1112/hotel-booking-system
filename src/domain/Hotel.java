@@ -1,5 +1,6 @@
 package domain;
 
+import java.time.LocalDate;
 import java.util.LinkedList;
 
 public class Hotel {
@@ -39,15 +40,26 @@ public class Hotel {
 	}
 	
 	/**
-	 * find a room for request capicity
+	 * get avaliable room for corresponding bookings
+	 * @param numBookings
+	 * @param date
+	 * @param nights
 	 * @param capicity
 	 * @return
 	 */
-	public Room searchEmptyRoom(int capicity) {
-		for(Room room: this.rooms) {
-			if(room.getCapicity() == capicity && room.getBookings().isEmpty())
-				return room;
+	public LinkedList<Room> searchAvailabeRooms(int numBookings, LocalDate date, int nights, int capicity){
+		int i = 0; //count available room
+		LinkedList<Room> rooms = new LinkedList<Room>();
+		while(i < numBookings) {
+			for(Room room: this.rooms) {
+				if(room.isRoomAvailable(capicity, date, nights)) {
+					i++;
+					rooms.add(room);
+				}
+			}
 		}
-		return null;
+		if(i == numBookings)
+			return rooms;
+		return null;	
 	}
 }

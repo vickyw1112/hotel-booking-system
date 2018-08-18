@@ -14,8 +14,6 @@ public class Booking {
 	private LocalDate arriveDate;
 	private int nights;
 	private Status status;
-	private int bid;
-	public static int count = 0;
 	
 	/**
 	 * constructor
@@ -28,8 +26,6 @@ public class Booking {
 		this.arriveDate = arriveDate;
 		this.nights = nights;
 		this.status = Status.Current;
-		this.bid = count;
-		count++;
 	}
 	
 	/**
@@ -44,13 +40,6 @@ public class Booking {
 	 */
 	public Status getStatus() {
 		return status;
-	}
-
-	/**
-	 * @return the bid
-	 */
-	public int getBid() {
-		return bid;
 	}
 
 	/**

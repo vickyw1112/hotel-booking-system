@@ -28,22 +28,19 @@ public class HotelSystem {
 	}
 	
 	/**
-	 * find availabe room in hotels and return it
+	 * find availabe rooms in hotels and return it
 	 * @param date
 	 * @param nights
 	 * @param capicity
+	 * @param numBookings // number of booking
 	 * @return
 	 */
-	public Room availableRoom(LocalDate date, int nights, int capicity) {
-		Room r;
+	public BookingManage availableRoom(LocalDate date, int nights, int capicity, int numBookings) {
+		LinkedList<Room> rooms;
 		for(Hotel hotel: this.hotels) {
-			if((r = hotel.searchEmptyRoom(capicity)) != null) {
-				return r;
-			} else {
-				for(Room room: hotel.getRooms()) {
-					if(room.isRoomAvailable(capicity, date, nights))
-						return room;
-				}
+			if((rooms = hotel.searchAvailabeRooms(numBookings, date, nights, capicity)) != null) {
+				BookingManage pair = new BookingManage(hotel, rooms);
+				return pair;
 			}
 		}
 		return null;	
@@ -60,10 +57,7 @@ public class HotelSystem {
 	 * @param numOfBooking
 	 */
 	public boolean makeBookings(LinkedList<Room> rooms, String name, 
-				LocalDate date, int nights, int numOfBooking) {
-		if(rooms.isEmpty() || rooms.toArray().length < numOfBooking) {
-			return false;
-		}
+				LocalDate date, int nights) {
 		LinkedList<Booking> bookings = new LinkedList<Booking>();
 		for(Room room: rooms) {
 			Booking booking = new Booking(name, date, nights);
@@ -75,10 +69,17 @@ public class HotelSystem {
 	}
 	
 	/**
+	 * TODO:
 	 * cancel booking
 	 * @param name
 	 */
 	public void cancelBooking(String name) {
+		LinkedList<Booking> bookings = this.cusBookings.get(name);
+		for(Booking booking: bookings) {
+			booking.setStatus(Status.Completed);
+		}
+		this.cusBookings.remove(name);
+		
 		
 	}
 	
