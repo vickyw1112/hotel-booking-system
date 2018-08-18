@@ -1,0 +1,43 @@
+/**
+ * 
+ */
+package ass1;
+
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.util.LinkedList;
+import java.util.Scanner;
+
+/**
+ * @author vicky
+ *
+ */
+public class HotelBookingSystem {
+	
+	
+
+	/**
+	 * @param args
+	 */
+	public static void main(String[] args) {
+		Scanner sc = null;
+	    String input;
+		int i;
+	      try{
+	          sc = new Scanner(new File(args[0]));    // args[0] is the first command line argument
+	          // Read input from the scanner here
+	          while(sc.hasNextLine()) {
+	        	  input = sc.nextLine();
+	          }
+	      }
+	      catch (FileNotFoundException e){
+	          System.out.println(e.getMessage());
+	      }
+	      finally{
+	          if (sc != null) sc.close();
+	      }
+		
+	}
+
+}

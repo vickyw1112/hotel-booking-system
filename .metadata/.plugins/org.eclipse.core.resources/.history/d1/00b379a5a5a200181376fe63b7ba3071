@@ -1,0 +1,65 @@
+/**
+ * 
+ */
+package ass1;
+
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.util.LinkedList;
+import java.util.Scanner;
+
+/**
+ * @author vicky
+ *
+ */
+public class HotelBookingSystem {
+	
+	public boolean manageInput(HotelSystem hs, String input) {
+		String [] inputs = input.split(" ");
+		int index = 0;
+		switch (inputs[0]) {
+		case "Hotel":
+			for(Hotel h: hs.getHotels()) {
+				if(h.getName().equals(inputs[1]))
+					break;
+				index++;
+			}
+			if(hs.getHotels().get(index) == null) {
+				Hotel hotel = new Hotel(inputs[1]);
+			}else {
+				
+			}
+			
+		}
+			
+		
+	}
+	
+
+	/**
+	 * @param args
+	 */
+	public static void main(String[] args) {
+		HotelBookingSystem hbs = new HotelBookingSystem();
+		Scanner sc = null;
+	    LinkedList<String>;
+		HotelSystem hs = new HotelSystem();
+	      try{
+	          sc = new Scanner(new File(args[0]));    // args[0] is the first command line argument
+	          // Read input from the scanner here
+	          while(sc.hasNextLine()) {
+	        	  input = sc.nextLine();
+	        	  hbs.manageInput(hs, input);
+	          }
+	      }
+	      catch (FileNotFoundException e){
+	          System.out.println(e.getMessage());
+	      }
+	      finally{
+	          if (sc != null) sc.close();
+	      }
+		
+	}
+
+}
