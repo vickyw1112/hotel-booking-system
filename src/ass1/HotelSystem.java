@@ -105,19 +105,5 @@ public class HotelSystem {
 		for(Booking booking: olds)
 			booking.setStatus(Status.Current);
 		return null;
-	}
-	
-	/**
-	 * remove completed bookings
-	 */
-	public void removePassBooking() {
-		for(Hotel hotel: this.hotels) {
-			for(Room room: hotel.getRooms()) {
-				for(Booking booking: room.getBookings())
-					if(booking.getStatus().equals(Status.Completed))
-						room.removeBooking(booking);
-			}
-		}
-	}
-	
+	}	
 }

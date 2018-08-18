@@ -97,6 +97,23 @@ public class Room {
 		}
 		return true;
 	}
+
+	/* (non-Javadoc)
+	 * @see java.lang.Object#toString()
+	 */
+	@Override
+	public String toString() {
+		if(this.bookings.isEmpty())
+			return this.number;
+		else {
+			for(Booking booking: this.bookings) {
+				
+			}
+			return this.number + " " + 
+		}
+	}
+	
+	
 	
 	
 }

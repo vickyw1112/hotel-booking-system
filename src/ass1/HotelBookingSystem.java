@@ -17,15 +17,26 @@ import java.util.Scanner;
  */
 public class HotelBookingSystem {
 	
+	/**
+	 * convert capicity to int
+	 * @param str
+	 * @return
+	 */
 	public int transformCap(String str) {
 		int num = 0;
 		if(str.equals("single"))
 			num = 1;
 		else if(str.equals("double"))
 			num = 2;
+		else if(str.equals("triple"))
+			num = 3;
 		return num;
 	}
 	
+	/**
+	 * print method
+	 * @param s
+	 */
 	public void state(String[] s) {
 		String p = "";
 		int i = 0;
@@ -40,8 +51,7 @@ public class HotelBookingSystem {
 	public void manageInput(HotelSystem hs, String input) {
 		String [] inputs = input.split(" ");
 		int index = 0;
-		switch (inputs[0]) {
-		case "Hotel":
+		if(inputs[0].equals("Hotel")) {
 			for(Hotel h: hs.getHotels()) {
 				if(h.getName().equals(inputs[1]))
 					break;
@@ -55,9 +65,9 @@ public class HotelBookingSystem {
 			}else {
 				hs.getHotels().get(index).addRoom(room);
 			}
-			break;
-		case "Booking":
-			hs.removePassBooking();
+			return;
+		}
+		if(inputs[0].equals("Booking")) {
 			
 			Pair returnVar;
 			Date date = new Date();
@@ -76,7 +86,7 @@ public class HotelBookingSystem {
 			returnVar = hs.availableRoom(dates, nights, capicity, numBookings);
 			if(returnVar == null) {
 				System.out.println("Booking rejected");
-				break;
+				return;
 			}
 			// make booking
 			hs.makeBookings(returnVar.getRooms(), inputs[1], dates, nights);
@@ -92,19 +102,20 @@ public class HotelBookingSystem {
 			String[] output = {inputs[0], hname, rname};
 			// print statement
 			this.state(output);
-			break;
-		case "Cancle":
+			return;
+		}
+		if(inputs[0].equals("Cancel")) {
 			hs.cancelBooking(inputs[0]);
 			String[] s = {"Cancel", inputs[0]};
 			this.state(s);
-			hs.removePassBooking();
-			break;
-		case "Change": // TODO
-			Pair change;
-			Date cDate = new Date();
-			LocalDate cDates = cDate.dateToLocal(2018, inputs[2], inputs[3]);
-			LinkedList<Integer> changeCa = new LinkedList<Integer>();
-			LinkedList<Integer> changeBooking = new LinkedList<Integer>();
+			return;
+		}
+		if(inputs[0].equals("Change")) {
+			Date date = new Date();
+			LocalDate dates = date.dateToLocal(2018, inputs[2], inputs[3]);
+			int nights = Integer.valueOf(inputs[4]);
+			LinkedList<Integer> capicity = new LinkedList<Integer>();
+			LinkedList<Integer> numBookings = new LinkedList<Integer>();
 
 			for(index = 5; index < inputs.length; index++) {
 				if(index % 2 != 0)
@@ -112,8 +123,22 @@ public class HotelBookingSystem {
 				else if(index % 2 == 0)
 					numBookings.add(Integer.valueOf(inputs[index]));
 			}
-			
-			change = hs.changeBooking(cDates, inputs[4], capicity, numBookings, inputs[1]);
+			Pair change = hs.changeBooking(dates, nights, capicity, numBookings, inputs[1]);
+			if(change != null) {
+				// get a print string
+				String hname = change.getHotel().getName();
+				String rname = "";
+				LinkedList<Room> rooms = change.getRooms();
+				int i = 0;
+				while(i < rooms.size() - 1){
+					rname += rooms.get(i++) + " ";
+				}
+				rname += rooms.get(i);
+				String[] output = {inputs[0], hname, rname};
+				// print statement
+				this.state(output);
+				return;
+			}
 		}	
 	}
 	
@@ -126,6 +151,7 @@ public class HotelBookingSystem {
 		Scanner sc = null;
 	    String input;
 		HotelSystem hs = new HotelSystem();
+		String[] output;
 	      try{
 	          sc = new Scanner(new File(args[0]));    // args[0] is the first command line argument
 	          // Read input from the scanner here
@@ -133,6 +159,14 @@ public class HotelBookingSystem {
 	        	  input = sc.nextLine();
 	        	  hbs.manageInput(hs, input);
 	          }
+	          for(Hotel hotel: hs.getHotels()
+	  			for(Room room: hotel.getRooms()) {
+	  				for(Booking booking: room.getBookings())
+	  					if(booking.getStatus().equals(Status.Completed))
+	  						room.removeBooking(booking);
+	  					if(booking.getStatus().equals(Status.Current))
+	  						String[] output = {hotel.getName(), }
+	  			}
 	      }
 	      catch (FileNotFoundException e){
 	          System.out.println(e.getMessage());
