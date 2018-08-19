@@ -103,17 +103,8 @@ public class Room {
 	 */
 	@Override
 	public String toString() {
-		if(this.bookings.isEmpty())
-			return this.number;
-		else {
-			for(Booking booking: this.bookings) {
-				
-			}
-			return this.number + " " + 
-		}
+		return this.number;
 	}
-	
-	
 	
 	
 }

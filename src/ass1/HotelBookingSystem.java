@@ -40,7 +40,7 @@ public class HotelBookingSystem {
 	public void state(String[] s) {
 		String p = "";
 		int i = 0;
-		while(i < s.length) {
+		while(i < s.length - 1) {
 			p += s[i] + " ";
 			i++;
 		}
@@ -57,8 +57,8 @@ public class HotelBookingSystem {
 					break;
 				index++;
 			}
-			Room room = new Room(inputs[2], Integer.valueOf(inputs[3]));
-			if(hs.getHotels().get(index) == null) {
+			Room room = new Room(inputs[2], Integer.parseInt(inputs[3]));
+			if(index == hs.getHotels().size()) {
 				Hotel hotel = new Hotel(inputs[1]);
 				hs.addHotel(hotel);
 				hotel.addRoom(room);
@@ -72,7 +72,7 @@ public class HotelBookingSystem {
 			Pair returnVar;
 			Date date = new Date();
 			LocalDate dates = date.dateToLocal(2018, inputs[2], inputs[3]);
-			int nights = Integer.valueOf(inputs[4]);
+			int nights = Integer.parseInt(inputs[4]);
 			LinkedList<Integer> capicity = new LinkedList<Integer>();
 			LinkedList<Integer> numBookings = new LinkedList<Integer>();
 
@@ -80,7 +80,7 @@ public class HotelBookingSystem {
 				if(index % 2 != 0)
 					capicity.add(this.transformCap(inputs[index]));
 				else if(index % 2 == 0)
-					numBookings.add(Integer.valueOf(inputs[index]));
+					numBookings.add(Integer.parseInt(inputs[index]));
 			}
 			// get avaiableroom
 			returnVar = hs.availableRoom(dates, nights, capicity, numBookings);
@@ -99,7 +99,7 @@ public class HotelBookingSystem {
 				rname += rooms.get(i++) + " ";
 			}
 			rname += rooms.get(i);
-			String[] output = {inputs[0], hname, rname};
+			String[] output = {inputs[0], inputs[1], hname, rname};
 			// print statement
 			this.state(output);
 			return;
@@ -139,6 +139,36 @@ public class HotelBookingSystem {
 				this.state(output);
 				return;
 			}
+			if(inputs[0].equals("Print")) {
+				for(Hotel hotel: hs.getHotels()) {
+					if(hotel.getName().equals(inputs[1])) {
+						for(Room room: hotel.getRooms()) {
+							if(room.noBookings()) {
+								String[] s = {hotel.toString(), room.toString()};
+								this.state(s);
+							}
+							else {
+								String b = ""; // for booking
+								int i = 0;
+								while(i < room.getBookings().size() - 1) {
+									Booking booking = room.getBookings().get(i);
+									if(booking.getStatus().equals(Status.Completed)) {
+										room.removeBooking(booking);
+									}
+									else {
+										b += booking.toString() + " ";
+									}
+									i++;
+								}
+								b += room.getBookings().get(i);
+								String[] s = {hotel.toString(), room.toString(), b};
+								this.state(s);
+							}
+						}
+					}
+				}
+				return;
+			}
 		}	
 	}
 	
@@ -151,7 +181,7 @@ public class HotelBookingSystem {
 		Scanner sc = null;
 	    String input;
 		HotelSystem hs = new HotelSystem();
-		String[] output;
+
 	      try{
 	          sc = new Scanner(new File(args[0]));    // args[0] is the first command line argument
 	          // Read input from the scanner here
@@ -159,14 +189,6 @@ public class HotelBookingSystem {
 	        	  input = sc.nextLine();
 	        	  hbs.manageInput(hs, input);
 	          }
-	          for(Hotel hotel: hs.getHotels()
-	  			for(Room room: hotel.getRooms()) {
-	  				for(Booking booking: room.getBookings())
-	  					if(booking.getStatus().equals(Status.Completed))
-	  						room.removeBooking(booking);
-	  					if(booking.getStatus().equals(Status.Current))
-	  						String[] output = {hotel.getName(), }
-	  			}
 	      }
 	      catch (FileNotFoundException e){
 	          System.out.println(e.getMessage());

@@ -4,6 +4,7 @@
 package ass1;
 
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 
 /**
  * @author vicky
@@ -56,6 +57,16 @@ public class Booking {
 	 */
 	public LocalDate getLeaveDate() {
 		return this.arriveDate.plusDays(this.nights);
+	}
+
+	/* (non-Javadoc)
+	 * @see java.lang.Object#toString()
+	 */
+	@Override
+	public String toString() {
+		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MMM d");
+		String text = this.arriveDate.format(formatter);
+		return text;
 	}
 	
 

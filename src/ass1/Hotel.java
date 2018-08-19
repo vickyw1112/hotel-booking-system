@@ -54,11 +54,9 @@ public class Hotel {
 	 */
 	public LinkedList<Room> searchAvailabeRooms(LocalDate date, int nights, LinkedList<Integer> capicity, LinkedList<Integer> numBookings){
 		int i = 0; //count available room
-		int count = 0;
-		int num = 0;
+		int count = 0; // numBooking and capicity index
 		LinkedList<Room> rooms = new LinkedList<Room>();
-		while(num < numBookings.size()) {
-			count++;
+		while(count < numBookings.size()) {
 			i = 0;
 			while(i < numBookings.get(count)) {
 				for(Room room: this.rooms) {
@@ -69,7 +67,18 @@ public class Hotel {
 					i++;
 				}
 			}
+			count++;
 		}
 		return rooms;	
 	}
+
+	/* (non-Javadoc)
+	 * @see java.lang.Object#toString()
+	 */
+	@Override
+	public String toString() {
+		return this.name;
+	}
+	
+	
 }
