@@ -64,7 +64,7 @@ public class Room {
 	 * @return
 	 */
 	public boolean isRoomAvailable(int capicity, LocalDate date, int nights) {
-		if(this.capicity == capicity && this.isTimeAvailable(date, nights))
+		if(this.capicity == capicity && (this.isTimeAvailable(date, nights) || this.noBookings()))
 			return true;
 		return false;
 	}

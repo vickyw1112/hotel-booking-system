@@ -58,15 +58,16 @@ public class Hotel {
 		LinkedList<Room> rooms = new LinkedList<Room>();
 		while(count < numBookings.size()) {
 			i = 0;
-			while(i < numBookings.get(count)) {
 				for(Room room: this.rooms) {
-					if(!room.isRoomAvailable(capicity.get(count).intValue(), date, nights)) {
-						return null;
-					}
-					rooms.add(room);
-					i++;
+					if(i == numBookings.get(count))
+						break;
+					if(room.isRoomAvailable(capicity.get(count), date, nights)) {
+						rooms.add(room);
+						i++;
+					}	
 				}
-			}
+				if(i < numBookings.get(count))
+					return null;
 			count++;
 		}
 		return rooms;	

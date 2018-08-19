@@ -134,7 +134,7 @@ public class HotelBookingSystem {
 					rname += rooms.get(i++) + " ";
 				}
 				rname += rooms.get(i);
-				String[] output = {inputs[0], hname, rname};
+				String[] output = {inputs[0], inputs[1], hname, rname};
 				// print statement
 				this.state(output);
 				return;
