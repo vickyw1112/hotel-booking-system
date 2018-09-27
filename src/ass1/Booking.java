@@ -10,11 +10,11 @@ import java.time.format.DateTimeFormatter;
  * @author vicky
  *
  */
-public class Booking {
+public class Booking implements Comparable<Booking> {
 	private String customer;
 	private LocalDate arriveDate;
 	private int nights;
-	private Status status;
+	private boolean isActive;
 	
 	/**
 	 * constructor
@@ -26,9 +26,14 @@ public class Booking {
 		this.customer = customer;
 		this.arriveDate = arriveDate;
 		this.nights = nights;
-		this.status = Status.Current;
+		this.isActive = true;
 	}
-	
+
+	@Override
+	public int compareTo(Booking o) {
+		return this.arriveDate.compareTo(o.getArriveDate());
+	}
+
 	/**
 	 * @return the arriveDate
 	 */
@@ -39,16 +44,15 @@ public class Booking {
 	/**
 	 * @return the status
 	 */
-	public Status getStatus() {
-		return status;
+	public boolean isActive() {
+		return isActive;
 	}
 
 	/**
 	 * change the status of a booking
-	 * @param completed
 	 */
-	public void setStatus(Status completed) {
-		this.status = completed;
+	public void toggleActiveness() {
+		this.isActive = !this.isActive;
 	}
 	
 	/**
@@ -65,8 +69,8 @@ public class Booking {
 	@Override
 	public String toString() {
 		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MMM d");
-		String text = this.arriveDate.format(formatter);
-		return text;
+		String date = this.arriveDate.format(formatter);
+		return date + " " + nights;
 	}
 	
 

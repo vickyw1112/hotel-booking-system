@@ -1,7 +1,10 @@
 package ass1;
 
 import java.time.LocalDate;
+import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class Hotel {
 	private String name;
@@ -45,33 +48,31 @@ public class Hotel {
 	 */
 
 	/**
-	 * get avaliable room for corresponding bookings
-	 * @param numBookings
-	 * @param date
-	 * @param nights
-	 * @param capicity
-	 * @return
+	 *
 	 */
-	public LinkedList<Room> searchAvailabeRooms(LocalDate date, int nights, LinkedList<Integer> capicity, LinkedList<Integer> numBookings){
-		int i = 0; //count available room
-		int count = 0; // numBooking and capicity index
-		LinkedList<Room> rooms = new LinkedList<Room>();
-		while(count < numBookings.size()) {
-			i = 0;
-				for(Room room: this.rooms) {
-					if(i == numBookings.get(count))
-						break;
-					if(room.isRoomAvailable(capicity.get(count), date, nights)) {
-						rooms.add(room);
-						i++;
-					}	
-				}
-				if(i < numBookings.get(count))
-					return null;
-			count++;
-		}
-		return rooms;	
+	public BookingResult tryBooking(LocalDate date, int numDays,
+									HashMap<Integer, Integer> roomDemand){
+        List<Room> bookedRooms = new LinkedList<>();
+	    for (Room room : getCompatibleRooms(date, numDays)) {
+	        if(!roomDemand.containsKey(room.getCapacity()))
+	            continue;
+            int demand = roomDemand.get(room.getCapacity());
+	        if(demand > 0){
+                bookedRooms.add(room);
+                roomDemand.put(room.getCapacity(), demand - 1);
+            }
+        }
+
+        if(roomDemand.values().stream().allMatch(val -> val == 0))
+            return new BookingResult(this, bookedRooms);
+        else
+            return BookingResult.REJECT;
 	}
+
+	private List<Room> getCompatibleRooms(LocalDate date, int numDays){
+	    return rooms.stream().filter(room -> room.canBook(date, numDays))
+                .collect(Collectors.toList());
+    }
 
 	/* (non-Javadoc)
 	 * @see java.lang.Object#toString()

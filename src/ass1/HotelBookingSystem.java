@@ -5,24 +5,95 @@ package ass1;
 
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.IOException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.Scanner;
+import java.time.Year;
+import java.time.ZoneId;
+import java.util.*;
 
 /**
  * @author vicky
  *
  */
 public class HotelBookingSystem {
-	
+	private LinkedList<Hotel> hotels;
+	private HashMap<String, List<Booking>> customerBookings;
+
+	public HotelBookingSystem() {
+		this.hotels = new LinkedList<>();
+		this.customerBookings = new HashMap<>();
+	}
+
+	private Hotel getHotelByName(String name){
+	    for(Hotel hotel: this.hotels){
+	        if (hotel.getName().equals(name))
+	            return hotel;
+        }
+        return null;
+    }
+
+    /**
+     *
+     */
+	public BookingResult makeBookings(String name, LocalDate date, int numDays,
+                             HashMap<Integer, Integer> roomDemand) {
+
+        for (Hotel hotel : hotels) {
+            BookingResult res = hotel.tryBooking(date, numDays, roomDemand);
+            if(res != BookingResult.REJECT) {
+                List<Booking> bookings = new LinkedList<>();
+                for(Room room: res){
+                    Booking booking = new Booking(name, date, numDays);
+                    room.addBooking(booking);
+                    bookings.add(booking);
+                }
+                customerBookings.put(name, bookings);
+                return res;
+            }
+        }
+        return BookingResult.REJECT;
+	}
+
+	/**
+	 * cancel booking
+	 * @param name
+	 */
+	public void cancelBooking(String name) {
+		List<Booking> bookings = this.customerBookings.get(name);
+		for(Booking booking: bookings) {
+			booking.toggleActiveness();
+		}
+		this.customerBookings.remove(name);
+	}
+
+	/**
+
+	 */
+    public BookingResult changeBooking(String name, LocalDate date, int numDays,
+                                      HashMap<Integer, Integer> roomDemand) {
+        List<Booking> oldBookings = this.customerBookings.get(name);
+        // toggle all previous bookings to be inactive
+        // so that they won't be considered during Room#canBook
+		cancelBooking(name);
+
+		BookingResult res = makeBookings(name, date, numDays, roomDemand);
+        if(res == BookingResult.REJECT){
+            // restore old bookings
+            oldBookings.forEach(Booking::toggleActiveness);
+            customerBookings.put(name, oldBookings);
+        }
+
+        return res;
+	}
+
+
 	/**
 	 * convert capicity to int
 	 * @param str
 	 * @return
 	 */
-	public int transformCap(String str) {
+	public int parseRoomCapacity(String str) {
 		int num = 0;
 		if(str.equals("single"))
 			num = 1;
@@ -33,169 +104,120 @@ public class HotelBookingSystem {
 		return num;
 	}
 	
-	/**
-	 * print method
-	 * @param s
-	 */
-	public void state(String[] s) {
-		String p = "";
-		int i = 0;
-		while(i < s.length - 1) {
-			p += s[i] + " ";
-			i++;
-		}
-		p += s[i];
-		System.out.println(p);
-	}
-	
-	public void manageInput(HotelSystem hs, String input) {
-		String [] inputs = input.split(" ");
-		int index = 0;
+	public void processInput(String input) {
+		String[] inputs = input.split(" ");
+        if (inputs.length < 2){
+            System.err.println("Invalid arguments");
+            return;
+        }
+
+		// Command to declare a new room
 		if(inputs[0].equals("Hotel")) {
-			for(Hotel h: hs.getHotels()) {
-				if(h.getName().equals(inputs[1]))
-					break;
-				index++;
-			}
-			Room room = new Room(inputs[2], Integer.parseInt(inputs[3]));
-			if(index == hs.getHotels().size()) {
-				Hotel hotel = new Hotel(inputs[1]);
-				hs.addHotel(hotel);
-				hotel.addRoom(room);
-			}else {
-				hs.getHotels().get(index).addRoom(room);
-			}
-			return;
-		}
-		if(inputs[0].equals("Booking")) {
-			
-			Pair returnVar;
-			Date date = new Date();
-			LocalDate dates = date.dateToLocal(2018, inputs[2], inputs[3]);
-			int nights = Integer.parseInt(inputs[4]);
-			LinkedList<Integer> capicity = new LinkedList<Integer>();
-			LinkedList<Integer> numBookings = new LinkedList<Integer>();
+		    if (inputs.length < 4){
+		        System.err.println("Invalid arguments");
+		        return;
+            }
 
-			for(index = 5; index < inputs.length; index++) {
-				if(index % 2 != 0)
-					capicity.add(this.transformCap(inputs[index]));
-				else if(index % 2 == 0)
-					numBookings.add(Integer.parseInt(inputs[index]));
-			}
-			// get avaiableroom
-			returnVar = hs.availableRoom(dates, nights, capicity, numBookings);
-			if(returnVar == null) {
-				System.out.println("Booking rejected");
-				return;
-			}
-			// make booking
-			hs.makeBookings(returnVar.getRooms(), inputs[1], dates, nights);
-			// get a print string
-			String hname = returnVar.getHotel().getName();
-			String rname = "";
-			LinkedList<Room> rooms = returnVar.getRooms();
-			int i = 0;
-			while(i < rooms.size() - 1){
-				rname += rooms.get(i++) + " ";
-			}
-			rname += rooms.get(i);
-			String[] output = {inputs[0], inputs[1], hname, rname};
-			// print statement
-			this.state(output);
-			return;
-		}
-		if(inputs[0].equals("Cancel")) {
-			hs.cancelBooking(inputs[0]);
-			String[] s = {"Cancel", inputs[0]};
-			this.state(s);
-			return;
-		}
-		if(inputs[0].equals("Change")) {
-			Date date = new Date();
-			LocalDate dates = date.dateToLocal(2018, inputs[2], inputs[3]);
-			int nights = Integer.valueOf(inputs[4]);
-			LinkedList<Integer> capicity = new LinkedList<Integer>();
-			LinkedList<Integer> numBookings = new LinkedList<Integer>();
+            Hotel hotel = this.getHotelByName(inputs[1]);
 
-			for(index = 5; index < inputs.length; index++) {
-				if(index % 2 != 0)
-					capicity.add(this.transformCap(inputs[index]));
-				else if(index % 2 == 0)
-					numBookings.add(Integer.valueOf(inputs[index]));
-			}
-			Pair change = hs.changeBooking(dates, nights, capicity, numBookings, inputs[1]);
-			if(change != null) {
-				// get a print string
-				String hname = change.getHotel().getName();
-				String rname = "";
-				LinkedList<Room> rooms = change.getRooms();
-				int i = 0;
-				while(i < rooms.size() - 1){
-					rname += rooms.get(i++) + " ";
-				}
-				rname += rooms.get(i);
-				String[] output = {inputs[0], inputs[1], hname, rname};
-				// print statement
-				this.state(output);
-				return;
-			}
-			if(inputs[0].equals("Print")) {
-				for(Hotel hotel: hs.getHotels()) {
-					if(hotel.getName().equals(inputs[1])) {
-						for(Room room: hotel.getRooms()) {
-							if(room.noBookings()) {
-								String[] s = {hotel.toString(), room.toString()};
-								this.state(s);
-							}
-							else {
-								String b = ""; // for booking
-								int i = 0;
-								while(i < room.getBookings().size() - 1) {
-									Booking booking = room.getBookings().get(i);
-									if(booking.getStatus().equals(Status.Completed)) {
-										room.removeBooking(booking);
-									}
-									else {
-										b += booking.toString() + " ";
-									}
-									i++;
-								}
-								b += room.getBookings().get(i);
-								String[] s = {hotel.toString(), room.toString(), b};
-								this.state(s);
-							}
-						}
-					}
-				}
-				return;
-			}
-		}	
+            if(hotel == null) {
+                // if hotel does not exist, create a new one
+                // and add to the list of all hotels
+                hotel = new Hotel(inputs[1]);
+                hotels.add(hotel);
+            }
+
+            Room room;
+			try {
+                room = new Room(inputs[2], Integer.parseInt(inputs[3]));
+            } catch (NumberFormatException e){
+                System.err.format("Invalid capacity: %s\n", inputs[3]);
+                return;
+            }
+            hotel.addRoom(room);
+		}
+		else if(inputs[0].equals("Booking") || inputs[0].equals("Change")) {
+            if (inputs.length < 7){
+                System.err.println("Invalid arguments");
+                return;
+            }
+
+            String dateStr = String.format("%d-%s-%s", Year.now().getValue(), inputs[2], inputs[3]);
+            Date date;
+            try {
+                date = new SimpleDateFormat("yyyy-MMM-d").parse(dateStr);
+            } catch (ParseException e) {
+                System.err.println("Invalid date " + dateStr);
+                return;
+            }
+            LocalDate localDate = date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+
+		    HashMap<Integer, Integer> roomDemand = new HashMap<>();
+            for (int i = 5; i + 1 < inputs.length; i += 2)
+                roomDemand.put(parseRoomCapacity(inputs[i]),
+                        Integer.parseInt(inputs[i + 1]));
+
+            BookingResult res;
+            if(inputs[0].equals("Booking")) {
+                res = makeBookings(inputs[1], localDate, Integer.parseInt(inputs[4]), roomDemand);
+            } else {
+                res = changeBooking(inputs[1], localDate, Integer.parseInt(inputs[4]), roomDemand);
+            }
+
+            if(res == BookingResult.REJECT) {
+                System.out.println(inputs[0] + " Reject");
+            }
+            else {
+                System.out.format("%s %s %s", inputs[0], inputs[1], res.getHotelName());
+                for (Room room: res) {
+                    System.out.print(" " + room.getNumber());
+                }
+                System.out.println();
+            }
+		}
+
+		else if(inputs[0].equals("Cancel")) {
+			cancelBooking(inputs[1]);
+			System.out.println("Cancel " + inputs[1]);
+		}
+        else if(inputs[0].equals("Print")) {
+            Hotel hotel = getHotelByName(inputs[1]);
+            for (Room room : hotel.getRooms()) {
+                System.out.format("%s %s\n", hotel.getName(), room);
+            }
+        } else {
+            System.err.println("Invalid command " + inputs[0]);
+        }
 	}
-	
+
 
 	/**
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		HotelBookingSystem hbs = new HotelBookingSystem();
+		HotelBookingSystem system = new HotelBookingSystem();
 		Scanner sc = null;
-	    String input;
-		HotelSystem hs = new HotelSystem();
+		System.out.print("> ");
+		if(args.length == 0 || args[0].equals("-")){
+            sc = new Scanner(System.in);
+        }
+        else {
+            try {
+                sc = new Scanner(new File(args[0]));    // args[0] is the first command line argument
+            } catch (FileNotFoundException e) {
+                System.out.println(e.getMessage());
+                return;
+            }
+        }
 
-	      try{
-	          sc = new Scanner(new File(args[0]));    // args[0] is the first command line argument
-	          // Read input from the scanner here
-	          while(sc.hasNextLine()) {
-	        	  input = sc.nextLine();
-	        	  hbs.manageInput(hs, input);
-	          }
-	      }
-	      catch (FileNotFoundException e){
-	          System.out.println(e.getMessage());
-	      }
-	      finally{
-	          if (sc != null) sc.close();
-	      }
+        // Read input from the scanner here
+        while(sc.hasNextLine()) {
+            system.processInput(sc.nextLine());
+            System.out.print("> ");
+            System.out.flush();
+        }
+
+        sc.close();
+
 	}
-
 }

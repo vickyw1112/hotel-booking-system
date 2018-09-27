@@ -1,7 +1,10 @@
 package ass1;
 
 import java.time.LocalDate;
+import java.util.Comparator;
 import java.util.LinkedList;
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class Room {
 	private String number;
@@ -20,10 +23,10 @@ public class Room {
 	}
 	
 	/**
-	 * @return the bookings
+	 * @return active bookings
 	 */
-	public LinkedList<Booking> getBookings() {
-		return bookings;
+	public List<Booking> getBookings() {
+		return bookings.stream().filter(Booking::isActive).sorted().collect(Collectors.toList());
 	}
 
 	/**
@@ -36,7 +39,7 @@ public class Room {
 	/**
 	 * @return the capacity
 	 */
-	public int getCapicity() {
+	public int getCapacity() {
 		return this.capicity;
 	}
 	
@@ -58,15 +61,21 @@ public class Room {
 	
 	/**
 	 * decide the room is available
-	 * @param capicity
-	 * @param date
-	 * @param nights
 	 * @return
 	 */
-	public boolean isRoomAvailable(int capicity, LocalDate date, int nights) {
-		if(this.capicity == capicity && (this.isTimeAvailable(date, nights) || this.noBookings()))
-			return true;
-		return false;
+	public boolean canBook(LocalDate date, int numDays) {
+        for(Booking booking: this.getBookings()) {
+            // if new booking date conflicts with the old booking date in list
+            // return false
+            if(booking.getArriveDate().isBefore(date.plusDays(numDays))
+                    && date.isBefore(booking.getLeaveDate()))
+                return false;
+//            } else if(!(booking.getLeaveDate().isBefore(date)
+//                    || booking.getLeaveDate().isEqual(date))) {
+//                return false;
+//            }
+        }
+        return true;
 	}
 	
 	/**
@@ -76,34 +85,17 @@ public class Room {
 	public boolean noBookings() {
 		return bookings.isEmpty();
 	}
-	
-	/**
-	 * decide time is whether available
-	 * @param date
-	 * @param len
-	 * @return
-	 */
-	private boolean isTimeAvailable(LocalDate date, int len) {
-		for(Booking booking: this.bookings) {
-			// if new booking date conflicts with the old booking date in list
-			// return false
-			if(booking.getStatus() == Status.Current && !(booking.getArriveDate().isAfter(date.plusDays(len)) 
-					|| booking.getArriveDate().isEqual(date.plusDays(len)))) {
-				return false;	
-			} else if(booking.getStatus() == Status.Current && !(booking.getLeaveDate().isBefore(date) 
-					|| booking.getLeaveDate().isEqual(date))) {
-				return false;
-			}
-		}
-		return true;
-	}
 
-	/* (non-Javadoc)
-	 * @see java.lang.Object#toString()
-	 */
+
+
 	@Override
 	public String toString() {
-		return this.number;
+		StringBuilder sb = new StringBuilder(this.number);
+        for (Booking booking : this.getBookings()) {
+            sb.append(' ');
+            sb.append(booking);
+        }
+        return new String(sb);
 	}
 	
 	
